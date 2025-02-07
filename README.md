@@ -31,6 +31,98 @@ We solve these challenges using Kafka Streams to process three key data streams:
    - Time-windowed analysis
    - Contains: productId, viewCount, uniqueUsers, totalValue, conversionRate
 
+### Business Use Case Example
+
+Imagine an e-commerce platform like Amazon needs to:
+1. Track how many people view each product
+2. Calculate conversion rates in real-time
+3. Monitor product performance by category
+4. Alert when products show unusual activity
+
+For example, when a customer views the "Premium Headphones":
+- A view event is sent to `product-events` with their userId
+- The system combines this with existing product data from `product-metadata`
+- Every 5 minutes, it updates analytics showing:
+  - How many unique customers viewed the headphones
+  - Total potential revenue (price × views)
+  - Conversion rate compared to other electronics
+  - Trending products in the category
+
+This helps business teams:
+- Identify hot products needing inventory adjustment
+- Spot products with high views but low sales
+- Make real-time pricing and promotion decisions
+- Monitor customer engagement patterns
+
+### High-Level Architecture Overview
+
+From an architectural perspective, this system operates in several distinct layers:
+
+#### 1. Data Ingestion Layer
+- **User Interaction Events**
+  - Source: Web/Mobile Applications
+  - Capture Method: Real-time event streaming
+  - Volume: Millions of events per hour
+  - Data: Views, clicks, purchases
+
+- **Product Catalog Updates**
+  - Source: Product Management System
+  - Capture Method: Change Data Capture (CDC)
+  - Frequency: Multiple times per day
+  - Data: Product details, pricing, categories
+
+#### 2. Stream Processing Layer
+- **Event Enrichment**
+  - Join events with product metadata
+  - Validate and standardize data formats
+  - Filter invalid or duplicate events
+
+- **State Management**
+  - Maintain windowed aggregations
+  - Track unique user counts
+  - Handle out-of-order events
+  - Manage distributed state stores
+
+#### 3. Analytics Processing Layer
+- **Time-Window Processing**
+  - 5-minute tumbling windows
+  - 1-minute sliding windows for trends
+  - Parallel processing across partitions
+
+- **Aggregation Engine**
+  - Group by product and category
+  - Calculate running statistics
+  - Maintain materialized views
+
+#### 4. Output Layer
+- **Real-time Analytics**
+  - Push to analytics topic
+  - Update monitoring dashboards
+  - Trigger alerts on thresholds
+
+- **Data Persistence**
+  - Changelog topics for recovery
+  - Compacted topics for current state
+  - Backup state stores
+
+#### System Integration Points
+1. **Upstream Systems**
+   - E-commerce platform (events)
+   - Product catalog system (metadata)
+   - User management system (user data)
+
+2. **Downstream Consumers**
+   - Analytics dashboards
+   - Monitoring systems
+   - Recommendation engines
+   - Inventory management
+
+#### Scalability Considerations
+- Horizontal scaling through partitioning
+- Stateful processing with local storage
+- Exactly-once processing semantics
+- Fault-tolerant stream processing
+
 ### Topic Schemas and Data Flow
 
 Here's how the data flows through the system, from input topics to output:
