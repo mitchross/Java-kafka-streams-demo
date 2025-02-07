@@ -11,44 +11,49 @@ permissions:
   contents: read
   pages: write
   id-token: write
-# Allow only one concurrent deployment
 concurrency:
   group: "pages"
   cancel-in-progress: true
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04  # Updated to supported runner:cite[3]
     steps:
       - uses: actions/checkout@v4
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.x'
+          python-version: '3.12'  # Explicit version for stability:cite[10]
           cache: 'pip'
       - name: Install mkdocs and plugins
         run: |
-          pip install mkdocs-material
-          pip install mkdocs-mermaid2-plugin
+          pip install mkdocs-material==9.5.0
+          pip install mkdocs-mermaid2-plugin==1.0.0
       - name: Setup Pages
-        uses: actions/configure-pages@v4
+        uses: actions/configure-pages@v5  # Updated to latest version:cite[6]:cite[10]
+        with:
+          static_site_generator: mkdocs  # Explicit generator declaration:cite[2]
       - name: Build site
-        run: mkdocs build
-      # Create .nojekyll file to disable GitHub Pages Jekyll processing
+        run: mkdocs build --strict  # Added validation flag
       - name: Create .nojekyll file
         run: touch site/.nojekyll
       - name: Upload Pages artifact
-        uses: actions/upload-pages-artifact@v3
+        uses: actions/upload-pages-artifact@v3  # Maintained version for Pages:cite[9]:cite[10]
         with:
           path: site
           retention-days: 90
           if-no-files-found: error
+          compression-level: 6  # Optimized compression:cite[9]
+
   deploy:
     needs: build
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04  # Updated runner image:cite[3]
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v4  # Latest compatible version:cite[5]:cite[9]
+        with:
+          timeout: 900000  # Extended 15-minute timeout
+          error_count: 5    # Stricter error threshold
