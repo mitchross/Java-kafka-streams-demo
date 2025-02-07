@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Troubleshooting - Real-Time Product Analytics</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <div class="container">
+        <nav class="nav">
+            <a href="index.html">Home</a>
+            <a href="business-case.html">Business Case</a>
+            <a href="architecture.html">Architecture</a>
+            <a href="getting-started.html">Getting Started</a>
+            <a href="monitoring.html">Monitoring</a>
+            <a href="troubleshooting.html">Troubleshooting</a>
+        </nav>
+
+        <h1>Troubleshooting Guide</h1>
+        <p>Common issues and their solutions when working with the Real-Time Product Analytics platform.</p>
+
+        <h2>Common Issues</h2>
+
+        <div class="features">
+            <div class="feature">
+                <h3>Application Startup Issues</h3>
+                <h4>Connection Refused to Kafka</h4>
+                <pre><code>Error: Connection to node -1 (localhost/127.0.0.1:9092) could not be established</code></pre>
+                <p><strong>Solution:</strong></p>
+                <ul>
+                    <li>Verify Kafka is running: <code>docker ps | grep broker</code></li>
+                    <li>Check ports are not in use: <code>netstat -an | grep 9092</code></li>
+                    <li>Ensure Docker network is accessible</li>
+                </ul>
+
+                <h4>Schema Registry Connection Failed</h4>
+                <pre><code>Error: Could not connect to Schema Registry at http://localhost:8081</code></pre>
+                <p><strong>Solution:</strong></p>
+                <ul>
+                    <li>Verify Schema Registry is running: <code>docker ps | grep schema-registry</code></li>
+                    <li>Check Schema Registry logs: <code>docker logs schema-registry</code></li>
+                    <li>Ensure correct URL in application.properties</li>
+                </ul>
+            </div>
+
+            <div class="feature">
+                <h3>Runtime Issues</h3>
+                <h4>Out of Memory Errors</h4>
+                <pre><code>Exception in thread "StreamThread-1" java.lang.OutOfMemoryError: Java heap space</code></pre>
+                <p><strong>Solution:</strong></p>
+                <ul>
+                    <li>Increase JVM heap size: <code>JAVA_OPTS="-Xmx2g"</code></li>
+                    <li>Adjust retention periods for state stores</li>
+                    <li>Review window sizes and cleanup policies</li>
+                </ul>
+
+                <h4>Rebalancing Problems</h4>
+                <pre><code>Error: Offset commit failed on partition product-events-0</code></pre>
+                <p><strong>Solution:</strong></p>
+                <ul>
+                    <li>Check consumer group health</li>
+                    <li>Verify network stability</li>
+                    <li>Adjust session timeout settings</li>
+                </ul>
+            </div>
+
+            <div class="feature">
+                <h3>Data Processing Issues</h3>
+                <h4>Duplicate Events</h4>
+                <pre><code>Warning: Detected duplicate event for productId: P123</code></pre>
+                <p><strong>Solution:</strong></p>
+                <ul>
+                    <li>Enable exactly-once processing</li>
+                    <li>Implement deduplication logic</li>
+                    <li>Check producer retry settings</li>
+                </ul>
+
+                <h4>Missing Data</h4>
+                <pre><code>Warning: No data found for time window: 2024-03-15T10:00:00Z</code></pre>
+                <p><strong>Solution:</strong></p>
+                <ul>
+                    <li>Verify data retention settings</li>
+                    <li>Check topic partitioning</li>
+                    <li>Review consumer lag</li>
+                </ul>
+            </div>
+        </div>
+
+        <h2>Diagnostic Commands</h2>
+
+        <h3>Kafka Health Check</h3>
+        <pre><code># Check topic status
+docker exec broker kafka-topics --bootstrap-server localhost:9092 --describe
+
+# List consumer groups
+docker exec broker kafka-consumer-groups --bootstrap-server localhost:9092 --list
+
+# Check consumer lag
+docker exec broker kafka-consumer-groups \
+    --bootstrap-server localhost:9092 \
+    --group product-analytics-group \
+    --describe</code></pre>
+
+        <h3>Application Diagnostics</h3>
+        <pre><code># Enable debug logging
+LOGGING_LEVEL_ROOT=DEBUG ./gradlew bootRun
+
+# Check thread dumps
+jstack $(jps | grep ProductAnalyticsApplication | cut -d " " -f 1)
+
+# Monitor GC activity
+jstat -gc $(jps | grep ProductAnalyticsApplication | cut -d " " -f 1) 1000</code></pre>
+
+        <h2>Performance Tuning</h2>
+        <div class="features">
+            <div class="feature">
+                <h3>Memory Settings</h3>
+                <pre><code>export JAVA_OPTS="\
+-Xms1g \
+-Xmx2g \
+-XX:+UseG1GC \
+-XX:MaxGCPauseMillis=200"</code></pre>
+            </div>
+
+            <div class="feature">
+                <h3>Kafka Settings</h3>
+                <pre><code>num.stream.threads=4
+commit.interval.ms=30000
+cache.max.bytes.buffering=10485760</code></pre>
+            </div>
+
+            <div class="feature">
+                <h3>RocksDB Settings</h3>
+                <pre><code>rocksdb.block.cache.size=50485760
+rocksdb.write.buffer.size=16777216
+rocksdb.max.write.buffers=3</code></pre>
+            </div>
+        </div>
+
+        <h2>Support Resources</h2>
+        <ul>
+            <li>Review the <a href="monitoring.html">Monitoring Guide</a> for performance tracking</li>
+            <li>Check our <a href="https://github.com/yourusername/kafka-streams-demo/issues">GitHub Issues</a> for known problems</li>
+            <li>Join our <a href="#">Community Discord</a> for real-time help</li>
+        </ul>
+    </div>
+</body>
+</html> 

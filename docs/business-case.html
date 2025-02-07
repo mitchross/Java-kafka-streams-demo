@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Business Case - Real-Time Product Analytics</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <div class="container">
+        <nav class="nav">
+            <a href="index.html">Home</a>
+            <a href="business-case.html">Business Case</a>
+            <a href="architecture.html">Architecture</a>
+            <a href="getting-started.html">Getting Started</a>
+            <a href="monitoring.html">Monitoring</a>
+            <a href="troubleshooting.html">Troubleshooting</a>
+        </nav>
+
+        <h1>Business Problem & Solution</h1>
+
+        <h2>The Challenge</h2>
+        <p>Modern e-commerce platforms face several challenges when analyzing product performance:</p>
+        <div class="features">
+            <div class="feature">
+                <h3>High Volume Data Processing</h3>
+                <ul>
+                    <li>Millions of user interactions per minute</li>
+                    <li>Need to process events in real-time</li>
+                    <li>Must handle traffic spikes during peak periods</li>
+                </ul>
+            </div>
+            <div class="feature">
+                <h3>Real-Time Insights</h3>
+                <ul>
+                    <li>Immediate visibility into product performance</li>
+                    <li>Quick detection of trending products</li>
+                    <li>Rapid response to inventory changes</li>
+                </ul>
+            </div>
+            <div class="feature">
+                <h3>Data Consistency</h3>
+                <ul>
+                    <li>Maintaining accurate statistics</li>
+                    <li>Handling out-of-order events</li>
+                    <li>Ensuring exactly-once processing</li>
+                </ul>
+            </div>
+        </div>
+
+        <h2>Real-World Example</h2>
+        <p>Consider a typical e-commerce scenario with "Premium Headphones":</p>
+
+        <h3>Input Data Sources</h3>
+        <pre><code>// 1. Product Events (high volume, real-time)
+{
+    "productId": "P123",
+    "userId": "U789",
+    "eventType": "VIEW",
+    "timestamp": 1648656000000,
+    "value": 199.99
+}
+
+// 2. Product Metadata (low volume, updated periodically)
+{
+    "productId": "P123",
+    "name": "Premium Headphones",
+    "category": "Electronics",
+    "basePrice": 199.99
+}</code></pre>
+
+        <h3>Business Insights Generated</h3>
+        <pre><code>// Real-time Analytics Output
+{
+    "productId": "P123",
+    "name": "Premium Headphones",
+    "category": "Electronics",
+    "viewCount": 145,
+    "uniqueUsers": 89,
+    "totalValue": 1799.91,
+    "conversionRate": 0.12,
+    "windowStart": 1648656000000,
+    "windowEnd": 1648656300000
+}</code></pre>
+
+        <h2>Business Value</h2>
+        <div class="features">
+            <div class="feature">
+                <h3>For Product Managers</h3>
+                <ul>
+                    <li>Track product performance in real-time</li>
+                    <li>Identify trending products quickly</li>
+                    <li>Monitor category performance</li>
+                    <li>Optimize product placement</li>
+                </ul>
+            </div>
+            <div class="feature">
+                <h3>For Marketing Teams</h3>
+                <ul>
+                    <li>Measure campaign effectiveness</li>
+                    <li>Track user engagement</li>
+                    <li>Calculate conversion rates</li>
+                    <li>Identify promotion opportunities</li>
+                </ul>
+            </div>
+            <div class="feature">
+                <h3>For Operations Teams</h3>
+                <ul>
+                    <li>Monitor system health</li>
+                    <li>Track processing latency</li>
+                    <li>Ensure data consistency</li>
+                    <li>Manage resource utilization</li>
+                </ul>
+            </div>
+        </div>
+
+        <h2>Key Metrics</h2>
+        <div class="features">
+            <div class="feature">
+                <h3>Engagement Metrics</h3>
+                <ul>
+                    <li>View counts</li>
+                    <li>Unique users</li>
+                    <li>Session duration</li>
+                    <li>Interaction patterns</li>
+                </ul>
+            </div>
+            <div class="feature">
+                <h3>Conversion Metrics</h3>
+                <ul>
+                    <li>Conversion rates</li>
+                    <li>Purchase frequency</li>
+                    <li>Cart abandonment</li>
+                    <li>Revenue per user</li>
+                </ul>
+            </div>
+            <div class="feature">
+                <h3>Performance Metrics</h3>
+                <ul>
+                    <li>Processing latency</li>
+                    <li>Event throughput</li>
+                    <li>System health</li>
+                    <li>Resource utilization</li>
+                </ul>
+            </div>
+        </div>
+
+        <p>For technical implementation details, see our <a href="architecture.html">Architecture Overview</a>.</p>
+    </div>
+</body>
+</html> 

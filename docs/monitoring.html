@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Monitoring & Management - Real-Time Product Analytics</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <div class="container">
+        <nav class="nav">
+            <a href="index.html">Home</a>
+            <a href="business-case.html">Business Case</a>
+            <a href="architecture.html">Architecture</a>
+            <a href="getting-started.html">Getting Started</a>
+            <a href="monitoring.html">Monitoring</a>
+            <a href="troubleshooting.html">Troubleshooting</a>
+        </nav>
+
+        <h1>Monitoring & Management</h1>
+
+        <h2>Monitoring Tools</h2>
+        
+        <div class="metric-grid">
+            <div class="metric-card">
+                <h3>Confluent Control Center</h3>
+                <p><strong>Access:</strong> http://localhost:9021</p>
+                <ul>
+                    <li>Real-time monitoring dashboard</li>
+                    <li>Consumer lag tracking</li>
+                    <li>Topic management</li>
+                    <li>Schema registry</li>
+                </ul>
+            </div>
+
+            <div class="metric-card">
+                <h3>Kafka UI</h3>
+                <p><strong>Access:</strong> http://localhost:8080</p>
+                <ul>
+                    <li>Lightweight interface</li>
+                    <li>Message browser</li>
+                    <li>Topic management</li>
+                    <li>Consumer group monitoring</li>
+                </ul>
+            </div>
+        </div>
+
+        <h2>Key Metrics</h2>
+
+        <h3>Processing Metrics</h3>
+        <ul>
+            <li>Events processed per second</li>
+            <li>Batch processing rates</li>
+            <li>End-to-end latency</li>
+            <li>Window computation time</li>
+        </ul>
+
+        <h3>Resource Metrics</h3>
+        <ul>
+            <li>JVM heap utilization</li>
+            <li>RocksDB memory usage</li>
+            <li>CPU utilization</li>
+            <li>Thread pool usage</li>
+        </ul>
+
+        <h2>Health Checks</h2>
+        <pre><code># Check application status
+curl http://localhost:8080/actuator/health
+
+# Check consumer group status
+docker exec broker kafka-consumer-groups \
+    --bootstrap-server localhost:9092 \
+    --describe --group product-analytics</code></pre>
+
+        <h2>Alert Configuration</h2>
+        <ul>
+            <li>High consumer lag (> 1000 messages)</li>
+            <li>Processing latency (> 500ms)</li>
+            <li>Resource utilization (> 80%)</li>
+            <li>Unusual event patterns</li>
+        </ul>
+
+        <h2>Log Analysis</h2>
+        <pre><code># View application logs
+docker logs kafka-streams-demo
+
+# Stream logs in real-time
+docker logs -f kafka-streams-demo</code></pre>
+
+        <p>For troubleshooting information, see our <a href="troubleshooting.html">Troubleshooting Guide</a>.</p>
+    </div>
+</body>
+</html> 

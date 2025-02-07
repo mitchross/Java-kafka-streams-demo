@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Architecture Overview - Real-Time Product Analytics</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <div class="container">
+        <nav class="nav">
+            <a href="index.html">Home</a>
+            <a href="business-case.html">Business Case</a>
+            <a href="architecture.html">Architecture</a>
+            <a href="getting-started.html">Getting Started</a>
+            <a href="monitoring.html">Monitoring</a>
+            <a href="troubleshooting.html">Troubleshooting</a>
+        </nav>
+
+        <h1>Architecture Overview</h1>
+
+        <h2>System Architecture</h2>
+        <p>From an architectural perspective, this system operates in several distinct layers:</p>
+
+        <div class="features">
+            <div class="feature">
+                <h3>Data Ingestion Layer</h3>
+                <h4>User Interaction Events</h4>
+                <ul>
+                    <li>Source: Web/Mobile Applications</li>
+                    <li>Capture Method: Real-time event streaming</li>
+                    <li>Volume: Millions of events per hour</li>
+                    <li>Data: Views, clicks, purchases</li>
+                </ul>
+                <h4>Product Catalog Updates</h4>
+                <ul>
+                    <li>Source: Product Management System</li>
+                    <li>Capture Method: Change Data Capture (CDC)</li>
+                    <li>Frequency: Multiple times per day</li>
+                    <li>Data: Product details, pricing, categories</li>
+                </ul>
+            </div>
+
+            <div class="feature">
+                <h3>Stream Processing Layer</h3>
+                <h4>Event Enrichment</h4>
+                <ul>
+                    <li>Join events with product metadata</li>
+                    <li>Validate and standardize data formats</li>
+                    <li>Filter invalid or duplicate events</li>
+                </ul>
+                <h4>State Management</h4>
+                <ul>
+                    <li>Maintain windowed aggregations</li>
+                    <li>Track unique user counts</li>
+                    <li>Handle out-of-order events</li>
+                    <li>Manage distributed state stores</li>
+                </ul>
+            </div>
+
+            <div class="feature">
+                <h3>Analytics Processing Layer</h3>
+                <h4>Time-Window Processing</h4>
+                <ul>
+                    <li>5-minute tumbling windows</li>
+                    <li>1-minute sliding windows for trends</li>
+                    <li>Parallel processing across partitions</li>
+                </ul>
+                <h4>Aggregation Engine</h4>
+                <ul>
+                    <li>Group by product and category</li>
+                    <li>Calculate running statistics</li>
+                    <li>Maintain materialized views</li>
+                </ul>
+            </div>
+
+            <div class="feature">
+                <h3>Output Layer</h3>
+                <h4>Real-time Analytics</h4>
+                <ul>
+                    <li>Push to analytics topic</li>
+                    <li>Update monitoring dashboards</li>
+                    <li>Trigger alerts on thresholds</li>
+                </ul>
+                <h4>Data Persistence</h4>
+                <ul>
+                    <li>Changelog topics for recovery</li>
+                    <li>Compacted topics for current state</li>
+                    <li>Backup state stores</li>
+                </ul>
+            </div>
+        </div>
+
+        <h2>State Management</h2>
+        <h3>RocksDB Integration</h3>
+        <p>This application uses RocksDB for state management:</p>
+
+        <div class="features">
+            <div class="feature">
+                <h3>Window Aggregations</h3>
+                <ul>
+                    <li>Stores time-windowed statistics</li>
+                    <li>Manages unique user counts</li>
+                    <li>Handles join operations</li>
+                </ul>
+            </div>
+
+            <div class="feature">
+                <h3>Configuration</h3>
+                <pre><code>Materialized.<String, ProductStats, WindowStore<Bytes, byte[]>>
+    as("product-stats-store")</code></pre>
+            </div>
+        </div>
+
+        <h2>Performance Characteristics</h2>
+        <div class="features">
+            <div class="feature">
+                <h3>Throughput & Latency</h3>
+                <ul>
+                    <li>Throughput: 100k+ events/second per node</li>
+                    <li>Latency: < 100ms end-to-end processing</li>
+                    <li>Recovery Time: < 30 seconds after node failure</li>
+                </ul>
+            </div>
+
+            <div class="feature">
+                <h3>Scalability</h3>
+                <ul>
+                    <li>Partition-based distribution</li>
+                    <li>Stateful processing with local storage</li>
+                    <li>Automatic work rebalancing</li>
+                </ul>
+            </div>
+
+            <div class="feature">
+                <h3>Fault Tolerance</h3>
+                <ul>
+                    <li>Exactly-once processing</li>
+                    <li>Automatic recovery</li>
+                    <li>State store backups</li>
+                </ul>
+            </div>
+        </div>
+
+        <p>For implementation details, see our <a href="getting-started.html">Getting Started Guide</a>.</p>
+    </div>
+</body>
+</html> 
