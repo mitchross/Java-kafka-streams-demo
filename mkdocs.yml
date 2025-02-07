@@ -2,6 +2,7 @@ site_name: Real-Time Product Analytics
 site_description: Documentation for Real-Time Product Analytics platform using Kafka Streams
 repo_url: https://github.com/mitchross/kafka-streams-demo
 repo_name: mitchross/kafka-streams-demo
+
 theme:
   name: material
   features:
@@ -9,25 +10,39 @@ theme:
     - navigation.tracking
     - navigation.sections
     - navigation.expand
+    - navigation.indexes
     - navigation.top
+    - toc.follow
     - search.highlight
+    - search.share
+    - search.suggest
     - content.code.copy
+    - content.code.annotate
   palette:
-    - scheme: default
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
       primary: indigo
       accent: indigo
       toggle:
         icon: material/brightness-7
         name: Switch to dark mode
-    - scheme: slate
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
       primary: indigo
       accent: indigo
       toggle:
         icon: material/brightness-4
         name: Switch to light mode
+  font:
+    text: Roboto
+    code: Roboto Mono
+  icon:
+    repo: fontawesome/brands/github
+
 plugins:
   - search
   - mermaid2
+
 markdown_extensions:
   - pymdownx.highlight:
       anchor_linenums: true
@@ -43,13 +58,36 @@ markdown_extensions:
   - pymdownx.emoji:
       emoji_index: !!python/name:materialx.emoji.twemoji
       emoji_generator: !!python/name:materialx.emoji.to_svg
+  - attr_list
+  - def_list
+  - md_in_html
+  - toc:
+      permalink: true
+      toc_depth: 3
+
 nav:
   - Home: index.md
-  - Business Case: business-case.md
-  - Architecture: architecture.md
-  - Getting Started: getting-started.md
-  - Examples:
-      - Overview: examples/index.md
+  - Setup:
+    - Business Case: business-case.md
+    - Architecture: architecture.md
+    - Getting Started: getting-started.md
+  - Features:
+    - Overview: examples/index.md
   - Operations:
-      - Monitoring: monitoring.md
-      - Troubleshooting: troubleshooting.md
+    - Monitoring: monitoring.md
+    - Troubleshooting: troubleshooting.md
+
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/mitchross/kafka-streams-demo
+  analytics:
+    provider: google
+    property: !ENV GOOGLE_ANALYTICS_KEY
+  consent:
+    title: Cookie consent
+    description: >- 
+      We use cookies to recognize your repeated visits and preferences, as well
+      as to measure the effectiveness of our documentation and whether users
+      find what they're searching for. With your consent, you're helping us to
+      make our documentation better.
