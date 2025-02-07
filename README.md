@@ -1,6 +1,6 @@
 # Real-Time Product Analytics with Kafka Streams
 
-This project demonstrates how to build a real-time product analytics platform using Kafka Streams, solving common challenges in e-commerce analytics at scale.
+This project demonstrates how to build a real-time product analytics platform using Kafka Streams, solving common challenges in e-commerce analytics at scale..
 
 ## Documentation
 
