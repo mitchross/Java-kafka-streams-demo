@@ -31,6 +31,61 @@ We solve these challenges using Kafka Streams to process three key data streams:
    - Time-windowed analysis
    - Contains: productId, viewCount, uniqueUsers, totalValue, conversionRate
 
+### Topic Schemas and Data Flow
+
+Here's how the data flows through the system, from input topics to output:
+
+#### 1. Product Events Topic (`product-events`)
+```json
+{
+    "productId": "P123",
+    "userId": "U789",
+    "eventType": "VIEW",
+    "timestamp": 1648656000000,
+    "value": 199.99
+}
+```
+
+#### 2. Product Metadata Topic (`product-metadata`)
+```json
+{
+    "productId": "P123",
+    "name": "Premium Headphones",
+    "category": "Electronics",
+    "basePrice": 199.99
+}
+```
+
+#### 3. Analytics Output Topic (`product-analytics`)
+The output combines event aggregations with product metadata:
+```json
+{
+    // From product-metadata
+    "productId": "P123",
+    "name": "Premium Headphones",
+    "category": "Electronics",
+    "basePrice": 199.99,
+    
+    // Aggregated from product-events
+    "viewCount": 145,
+    "uniqueUsers": 89,
+    "totalValue": 1799.91,
+    "conversionRate": 0.12,
+    
+    // Time window information
+    "windowStart": 1648656000000,
+    "windowEnd": 1648656300000
+}
+```
+
+#### Data Transformation Process
+1. Events are grouped by `productId` and aggregated in 5-minute windows
+2. Unique users are counted using the `userId` field
+3. Total value is summed from the `value` field
+4. Conversion rate is calculated as `uniqueUsers / viewCount`
+5. Product metadata is joined using the `productId` as the key
+6. Results are continuously updated as new events arrive
+
 ```mermaid
 graph TD
     A1[Product Events] -->|High Volume| B[Kafka Streams Application]
@@ -43,9 +98,9 @@ graph TD
     B -->|Aggregate| F[Stats]
     end
     
-    style A1 fill:#f9f,stroke:#333,stroke-width:2px
-    style A2 fill:#f9f,stroke:#333,stroke-width:2px
-    style C fill:#f9f,stroke:#333,stroke-width:2px
+    style A1 fill:#f0f0f0,stroke:#666,stroke-width:2px
+    style A2 fill:#f0f0f0,stroke:#666,stroke-width:2px
+    style C fill:#f0f0f0,stroke:#666,stroke-width:2px
 ```
 
 ### Why Kafka Streams?
@@ -84,6 +139,31 @@ graph TD
 - Unique user tracking
 - Aggregated product statistics
 - State store management
+
+## Example Projects
+
+### 1. Java Streams Demo (`examples/java-streams`)
+This example demonstrates efficient data processing using pure Java Streams API (without Kafka). It provides a great comparison between traditional Java Streams processing and Kafka Streams:
+
+**Key Differences from Main Project:**
+- In-memory processing vs. distributed streaming
+- Single JVM vs. scalable cluster
+- Batch processing vs. continuous streaming
+- Local state vs. distributed state stores
+
+**Features:**
+- Parallel stream processing
+- Memory-efficient data handling
+- Complex aggregations and transformations
+- Performance benchmarking with various dataset sizes
+
+To run the Java Streams demo:
+```bash
+cd examples/java-streams
+./gradlew run
+```
+
+See the [Java Streams Demo README](examples/java-streams/Readme.md) for detailed information.
 
 ## Prerequisites
 - Java 17+
@@ -220,10 +300,10 @@ graph TD
     F -->|Long| G
     G -->|ProductStatsSerde| H[product-analytics topic]
     
-    style A fill:#f9f,stroke:#333,stroke-width:2px
-    style H fill:#f9f,stroke:#333,stroke-width:2px
+    style A fill:#f0f0f0,stroke:#666,stroke-width:2px
+    style H fill:#f0f0f0,stroke:#666,stroke-width:2px
     
-    classDef processing fill:#ddf,stroke:#333,stroke-width:1px
+    classDef processing fill:#e6e6e6,stroke:#666,stroke-width:1px
     class B,C,D,E,F,G processing
 ```
 
@@ -266,73 +346,6 @@ classDiagram
     KafkaConfiguration --> ProductAnalyticsService
     CustomSerdes --> ProductAnalyticsService
 
-```
-
-### Legacy ASCII Diagrams
-
-```
-Input Topic                    Processing Pipeline (ProductAnalyticsService)                 Output Topic
-─────────────                 ──────────────────────────────────────────                   ─────────────
-                              ┌─────────────────┐
-                              │  Input Stream   │
-                              │ (String,String) │◄──── ProductEventSerde
-                              └────────┬────────┘
-                                      │
-                                      ▼
-┌──────────────┐            ┌─────────────────┐
-│product-events│────────────►│   Parse JSON    │◄──── Jackson ObjectMapper
-└──────────────┘            │ to ProductEvent  │
-                           └────────┬────────┘
-                                   │
-                                   ▼
-                           ┌─────────────────┐
-                           │  Group by Key   │
-                           │   (productId)   │
-                           └────────┬────────┘
-                                   │
-                                   ├─────────────────┐
-                                   │                 │
-                                   ▼                 ▼
-                         ┌─────────────────┐ ┌─────────────────┐
-                         │Window & Aggregate│ │  Unique Users   │
-                         │  ProductStats   │ │    Counter      │
-                         └────────┬────────┘ └────────┬────────┘
-                                  │                   │
-                                  └─────────┐ ┌───────┘
-                                           │ │
-                                           ▼ ▼
-                                   ┌─────────────────┐
-                                   │     Join &      │
-                                   │   Serialize     │◄──── ProductStatsSerde
-                                   └────────┬────────┘
-                                           │                ┌────────────────┐
-                                           └───────────────►│product-analytics│
-                                                          └────────────────┘
-
-Time Windows: 5-minute windows with 1-minute advances
-State Stores: product-stats-store (ProductStats)
-```
-
-### Data Flow Details
-```
-┌─────────────┐     ┌─────────────┐     ┌─────────────┐     ┌─────────────┐
-│ProductEvent │     │ProductStats │     │  Windowed   │     │   Output    │
-│   JSON     │ ──► │Aggregation  │ ──► │  Analysis   │ ──► │    JSON     │
-└─────────────┘     └─────────────┘     └─────────────┘     └─────────────┘
-     ▲                    ▲                   ▲                    ▲
-     │                    │                   │                    │
-ProductEventSerde    State Stores      WindowedSerdes        JSON Mapper
-```
-
-### Component Responsibilities
-```
-┌────────────────────────┐   ┌────────────────────────┐   ┌────────────────────────┐
-│   KafkaConfiguration   │   │  ProductAnalytics      │   │     Custom Serdes      │
-│------------------------│   │------------------------│   │------------------------│
-│• Stream Config         │   │• Stream Processing     │   │• ProductEventSerde    │
-│• Serde Settings       │──►│• Window Management     │◄──│• ProductStatsSerde    │
-│• Topic Management     │   │• State Store Handling  │   │• JSON Serialization   │
-└────────────────────────┘   └────────────────────────┘   └────────────────────────┘
 ```
 
 ### ProductEvent
