@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Examples & Usage Patterns - Real-Time Product Analytics</title>
+    <title>Pure Java Streams Examples - Real-Time Product Analytics</title>
     <link rel="stylesheet" href="../css/styles.css">
 </head>
 <body>
@@ -12,335 +12,136 @@
             <a href="../index.html">Home</a>
             <a href="../business-case.html">Business Case</a>
             <a href="../architecture.html">Architecture</a>
-            <a href="../getting-started.html">Getting Started</a>
             <a href="../monitoring.html">Monitoring</a>
             <a href="../troubleshooting.html">Troubleshooting</a>
         </nav>
 
-        <h1>Examples & Usage Patterns</h1>
-        <p>This guide provides practical examples and common usage patterns for the Real-Time Product Analytics platform.</p>
+        <h1>Pure Java Streams Examples</h1>
+        <p>This guide demonstrates efficient data processing using Java Streams API, providing a comparison with the main Kafka Streams implementation.</p>
 
-        <h2>Basic Examples</h2>
-
+        <h2>Overview</h2>
         <div class="features">
             <div class="feature">
-                <h3>Product Event Processing</h3>
-                <h4>Sending Product View Events</h4>
-                <pre><code>// Create a product view event
-ProductViewEvent event = ProductViewEvent.builder()
-    .productId("PROD-123")
-    .userId("USER-456")
-    .timestamp(System.currentTimeMillis())
-    .sessionId("SESSION-789")
-    .build();
-
-// Send to Kafka topic
-kafkaTemplate.send("product-views", event.getProductId(), event);</code></pre>
-
-                <h4>Processing View Events</h4>
-                <pre><code>@Bean
-public KStream<String, ProductViewEvent> processProductViews(StreamsBuilder builder) {
-    return builder.stream("product-views", 
-        Consumed.with(Serdes.String(), productViewEventSerde))
-        .peek((key, value) -> log.info("Processing view: {}", value))
-        .groupByKey()
-        .windowedBy(TimeWindows.of(Duration.ofMinutes(5)))
-        .count()
-        .toStream()
-        .peek((key, value) -> log.info("View count: {} = {}", key, value));
-}</code></pre>
+                <h3>Java Streams vs Kafka Streams</h3>
+                <ul>
+                    <li>In-memory processing vs. distributed streaming</li>
+                    <li>Single JVM vs. scalable cluster</li>
+                    <li>Batch processing vs. continuous streaming</li>
+                    <li>Local state vs. distributed state stores</li>
+                </ul>
             </div>
 
             <div class="feature">
-                <h3>Product Analytics</h3>
-                <h4>Calculating View-to-Purchase Ratio</h4>
-                <pre><code>@Bean
-public KTable<String, Double> calculateConversionRate(
-        KTable<String, Long> viewCounts,
-        KTable<String, Long> purchaseCounts) {
-    
-    return viewCounts.join(
-        purchaseCounts,
-        (views, purchases) -> {
-            if (views == 0) return 0.0;
-            return (double) purchases / views;
-        },
-        Materialized.as("conversion-rates")
-    );
-}</code></pre>
+                <h3>Key Benefits</h3>
+                <ul>
+                    <li>Clean, readable code</li>
+                    <li>Efficient data processing</li>
+                    <li>Built-in parallelization</li>
+                    <li>Reduced boilerplate</li>
+                </ul>
+            </div>
+        </div>
 
-                <h4>Trending Products Analysis</h4>
-                <pre><code>@Bean
-public KStream<String, ProductTrend> analyzeTrends(
-        KStream<String, ProductViewEvent> viewEvents) {
-    
-    return viewEvents
-        .groupByKey()
-        .windowedBy(
-            SlidingWindows.withTimeDifferenceAndGrace(
-                Duration.ofMinutes(30),
-                Duration.ofMinutes(5)
-            )
-        )
-        .count()
-        .toStream()
-        .mapValues(count -> new ProductTrend(
-            count,
-            System.currentTimeMillis()
-        ));
-}</code></pre>
+        <h2>Basic Examples</h2>
+        <div class="features">
+            <div class="feature">
+                <h3>Product Processing</h3>
+                <pre><code>List<Product> products = getProducts();
+double averagePrice = products.stream()
+    .filter(p -> p.getCategory().equals("Electronics"))
+    .mapToDouble(Product::getPrice)
+    .average()
+    .orElse(0.0);</code></pre>
+            </div>
+
+            <div class="feature">
+                <h3>Parallel Processing</h3>
+                <pre><code>// Process products in parallel
+return products.parallelStream()
+    .map(product -> {
+        EnrichedProduct enriched = new EnrichedProduct(product);
+        
+        // Add price information
+        Price price = priceMap.get(product.id());
+        if (price != null) {
+            enriched.addPrice(price);
+        }
+        
+        return enriched;
+    })
+    .toList();</code></pre>
             </div>
         </div>
 
         <h2>Advanced Examples</h2>
-
         <div class="features">
             <div class="feature">
-                <h3>Complex Event Processing</h3>
-                <h4>Session-Based Analysis</h4>
-                <pre><code>@Bean
-public KStream<String, SessionAnalytics> analyzeUserSessions(
-        KStream<String, ProductViewEvent> viewEvents) {
-    
-    return viewEvents
-        .groupBy((key, value) -> value.getSessionId())
-        .windowedBy(SessionWindows.with(Duration.ofMinutes(30)))
-        .aggregate(
-            SessionAnalytics::new,
-            (key, value, aggregate) -> aggregate.addEvent(value),
-            Materialized.as("session-analytics")
-        )
-        .toStream()
-        .map((key, value) -> KeyValue.pair(
-            key.key(),
-            value
-        ));
-}</code></pre>
-
-                <h4>Category Performance</h4>
-                <pre><code>@Bean
-public KTable<String, CategoryStats> analyzeCategoryPerformance(
-        KStream<String, ProductViewEvent> viewEvents,
-        KTable<String, Product> products) {
-    
-    return viewEvents
-        .join(
-            products,
-            (event, product) -> new ProductActivity(event, product)
-        )
-        .groupBy((key, value) -> value.getProduct().getCategory())
-        .aggregate(
-            CategoryStats::new,
-            (key, value, aggregate) -> aggregate.update(value),
-            Materialized.as("category-stats")
-        );
-}</code></pre>
+                <h3>Category Analysis</h3>
+                <pre><code>Map<String, DoubleSummaryStatistics> categoryStats = 
+    products.parallelStream()
+        .filter(p -> p.getPrice() != null)
+        .collect(Collectors.groupingByConcurrent(
+            EnrichedProduct::getCategory,
+            Collectors.summarizingDouble(p -> 
+                p.getPrice().doubleValue())
+        ));</code></pre>
             </div>
 
             <div class="feature">
-                <h3>Data Enrichment</h3>
-                <h4>Product Metadata Enrichment</h4>
-                <pre><code>@Bean
-public KStream<String, EnrichedProduct> enrichProducts(
-        KStream<String, Product> products,
-        KTable<String, PriceInfo> prices,
-        KTable<String, InventoryLevel> inventory) {
-    
-    return products
-        .join(
-            prices,
-            (product, price) -> product.withPrice(price)
-        )
-        .join(
-            inventory,
-            (product, stock) -> EnrichedProduct.builder()
-                .product(product)
-                .currentStock(stock)
-                .build()
-        );
-}</code></pre>
-
-                <h4>Real-time Recommendations</h4>
-                <pre><code>@Bean
-public KStream<String, ProductRecommendation> generateRecommendations(
-        KStream<String, ProductViewEvent> viewEvents,
-        KTable<String, Product> products) {
-    
-    return viewEvents
-        .groupBy((key, value) -> value.getUserId())
-        .windowedBy(TimeWindows.of(Duration.ofHours(24)))
-        .aggregate(
-            UserProfile::new,
-            (key, value, aggregate) -> aggregate.addView(value),
-            Materialized.as("user-profiles")
-        )
-        .toStream()
-        .flatMapValues(profile -> profile.generateRecommendations());
-}</code></pre>
+                <h3>Warehouse Totals</h3>
+                <pre><code>Map<String, Integer> warehouseTotals = 
+    products.parallelStream()
+        .flatMap(p -> p.getWarehouseStock()
+            .entrySet().stream())
+        .collect(Collectors.groupingByConcurrent(
+            Map.Entry::getKey,
+            Collectors.summingInt(Map.Entry::getValue)
+        ));</code></pre>
             </div>
         </div>
 
-        <h2>Integration Examples</h2>
-
+        <h2>Performance Testing</h2>
         <div class="features">
             <div class="feature">
-                <h3>External System Integration</h3>
-                <h4>REST API Integration</h4>
-                <pre><code>@Bean
-public KStream<String, EnrichedProduct> integrateExternalPricing(
-        KStream<String, Product> products) {
-    
-    return products.mapValues(product -> {
-        PriceInfo price = restTemplate.getForObject(
-            "http://pricing-service/prices/" + product.getId(),
-            PriceInfo.class
-        );
-        return product.withPrice(price);
-    });
-}</code></pre>
+                <h3>Large Dataset Processing</h3>
+                <pre><code>// Process different dataset sizes
+int[] sizes = {1_000, 10_000, 100_000, 1_000_000};
 
-                <h4>Database Integration</h4>
-                <pre><code>@Bean
-public KStream<String, Product> persistToDatabase(
-        KStream<String, Product> products) {
-    
-    return products.peek((key, product) -> {
-        jdbcTemplate.update(
-            "INSERT INTO products (id, name, price) VALUES (?, ?, ?)",
-            product.getId(),
-            product.getName(),
-            product.getPrice()
-        );
-    });
+for (int size : sizes) {
+    log.info("Testing with dataset size: {}", size);
+    processor.processLargeDataset(size);
+    log.info("Completed processing {} items\n", size);
 }</code></pre>
             </div>
 
             <div class="feature">
-                <h3>Monitoring Integration</h3>
-                <h4>Metrics Collection</h4>
-                <pre><code>@Bean
-public KStream<String, ProductViewEvent> collectMetrics(
-        KStream<String, ProductViewEvent> viewEvents) {
-    
-    return viewEvents.peek((key, event) -> {
-        meterRegistry.counter("product.views", 
-            "product", event.getProductId(),
-            "category", event.getCategory()
-        ).increment();
-    });
-}</code></pre>
+                <h3>Memory-Efficient Operations</h3>
+                <pre><code>// Create sample data efficiently
+DataGenerationService generator = 
+    new DataGenerationService();
+List<Product> products = generator.generateProducts(size);
+List<Price> prices = generator.generatePrices(products);
+List<Stock> stocks = generator.generateStocks(products);
 
-                <h4>Alert Generation</h4>
-                <pre><code>@Bean
-public KStream<String, Alert> generateAlerts(
-        KTable<String, InventoryLevel> inventory) {
-    
-    return inventory
-        .toStream()
-        .filter((key, level) -> level.getQuantity() < level.getMinThreshold())
-        .mapValues(level -> Alert.builder()
-            .type(AlertType.LOW_STOCK)
-            .productId(key)
-            .quantity(level.getQuantity())
-            .threshold(level.getMinThreshold())
-            .build()
-        );
-}</code></pre>
+// Process data with parallel streams
+List<EnrichedProduct> enrichedProducts = 
+    enrichProducts(products, prices, stocks);</code></pre>
             </div>
         </div>
 
-        <h2>Testing Examples</h2>
+        <h2>Running the Examples</h2>
+        <pre><code># Build and run performance tests
+cd examples/java-streams
+./gradlew run
 
-        <div class="features">
-            <div class="feature">
-                <h3>Unit Testing</h3>
-                <h4>Testing Topology</h4>
-                <pre><code>@Test
-public void testProductViewProcessing() {
-    // Create topology
-    Topology topology = createProductViewTopology();
-    
-    // Create test driver
-    TopologyTestDriver testDriver = new TopologyTestDriver(
-        topology, 
-        getTestProperties()
-    );
-    
-    // Create test record
-    ProductViewEvent event = createTestEvent();
-    TestInputTopic<String, ProductViewEvent> inputTopic = 
-        testDriver.createInputTopic("product-views",
-            new StringSerializer(),
-            new JsonSerializer<>());
-    
-    // Send test record
-    inputTopic.pipeInput(event.getProductId(), event);
-    
-    // Verify output
-    TestOutputTopic<String, Long> outputTopic =
-        testDriver.createOutputTopic("view-counts",
-            new StringDeserializer(),
-            new LongDeserializer());
-    
-    assertThat(outputTopic.readKeyValue())
-        .isEqualTo(KeyValue.pair(event.getProductId(), 1L));
-}</code></pre>
-
-                <h4>Testing State Stores</h4>
-                <pre><code>@Test
-public void testStateStore() {
-    // Create topology with state store
-    Topology topology = createTopologyWithStateStore();
-    
-    // Create test driver
-    TopologyTestDriver testDriver = new TopologyTestDriver(
-        topology, 
-        getTestProperties()
-    );
-    
-    // Get state store
-    KeyValueStore<String, Long> store =
-        testDriver.getKeyValueStore("view-counts");
-    
-    // Verify state
-    assertThat(store.get("PROD-123")).isEqualTo(5L);
-}</code></pre>
-            </div>
-
-            <div class="feature">
-                <h3>Integration Testing</h3>
-                <h4>Testing with Embedded Kafka</h4>
-                <pre><code>@SpringBootTest
-@EmbeddedKafka(partitions = 1, topics = {"product-views"})
-class ProductAnalyticsIntegrationTest {
-
-    @Autowired
-    private KafkaTemplate<String, ProductViewEvent> kafkaTemplate;
-    
-    @Autowired
-    private ProductAnalyticsService analyticsService;
-    
-    @Test
-    void testProductViewProcessing() {
-        // Send test event
-        ProductViewEvent event = createTestEvent();
-        kafkaTemplate.send("product-views", event.getProductId(), event);
-        
-        // Verify processing
-        await()
-            .atMost(5, TimeUnit.SECONDS)
-            .until(() -> analyticsService.getViewCount(
-                event.getProductId()) == 1);
-    }
-}</code></pre>
-            </div>
-        </div>
+# Run specific performance tests
+./gradlew performanceTest</code></pre>
 
         <h2>Next Steps</h2>
         <ul>
-            <li>Review the <a href="../architecture.html">Architecture Overview</a> for system design details</li>
-            <li>Check the <a href="../monitoring.html">Monitoring Guide</a> for operational insights</li>
-            <li>See the <a href="../troubleshooting.html">Troubleshooting Guide</a> for problem resolution</li>
+            <li>Review the <a href="../architecture.html">Architecture Overview</a> to understand how these concepts apply in Kafka Streams</li>
+            <li>Check the <a href="../monitoring.html">Monitoring Guide</a> for performance tracking</li>
+            <li>See the <a href="../troubleshooting.html">Troubleshooting Guide</a> for common issues</li>
         </ul>
     </div>
 </body>

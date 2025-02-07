@@ -12,7 +12,6 @@
             <a href="index.html">Home</a>
             <a href="business-case.html">Business Case</a>
             <a href="architecture.html">Architecture</a>
-            <a href="getting-started.html">Getting Started</a>
             <a href="monitoring.html">Monitoring</a>
             <a href="troubleshooting.html">Troubleshooting</a>
         </nav>
@@ -20,6 +19,123 @@
         <h1>Real-Time Product Analytics with Kafka Streams</h1>
         
         <p>This project demonstrates how to build a real-time product analytics platform using Kafka Streams, solving common challenges in e-commerce analytics at scale.</p>
+
+        <h2>Prerequisites</h2>
+        <ul>
+            <li>Java 17 or higher</li>
+            <li>Docker and Docker Compose</li>
+            <li>Gradle</li>
+            <li>Git</li>
+        </ul>
+
+        <h2>Quick Setup</h2>
+
+        <h3>1. Clone the Repository</h3>
+        <pre><code>git clone https://github.com/yourusername/kafka-streams-demo
+cd kafka-streams-demo</code></pre>
+
+        <h3>2. Start Kafka Environment</h3>
+        <pre><code># Start all services
+docker-compose up -d
+
+# Wait for about 30 seconds for all services to be ready
+# You can monitor readiness in Control Center: http://localhost:9021</code></pre>
+
+        <p>The following topics are automatically created:</p>
+        <ul>
+            <li><code>product-events</code>: User interactions with products</li>
+            <li><code>product-metadata</code>: Product details and information</li>
+            <li><code>product-analytics</code>: Aggregated analytics results</li>
+        </ul>
+
+        <h3>3. Verify Setup</h3>
+        <pre><code># Check that all services are running
+docker ps
+
+# Expected output:
+# - broker
+# - zookeeper
+# - schema-registry
+# - control-center
+# - kafka-ui</code></pre>
+
+        <h2>Running the Application</h2>
+
+        <h3>1. Load Sample Data</h3>
+        <pre><code># Load product metadata
+./gradlew loadProductMetadata</code></pre>
+
+        <p>Example metadata record:</p>
+        <pre><code>{
+  "productId": "P123",
+  "name": "Premium Headphones",
+  "category": "Electronics",
+  "basePrice": 199.99
+}</code></pre>
+
+        <h3>2. Start the Application</h3>
+        <pre><code># Run with debug logging enabled
+LOGGING_LEVEL_ROOT=DEBUG ./gradlew bootRun</code></pre>
+
+        <h3>3. Generate Test Events</h3>
+        <pre><code># Generate sample product events
+./gradlew generateTestData</code></pre>
+
+        <h3>4. Monitor Results</h3>
+        <pre><code># View the analytics output
+docker exec -it broker kafka-console-consumer \
+    --bootstrap-server localhost:9092 \
+    --topic product-analytics \
+    --from-beginning</code></pre>
+
+        <h2>Management Interfaces</h2>
+
+        <div class="features">
+            <div class="feature">
+                <h3>Confluent Control Center</h3>
+                <p><strong>URL:</strong> <a href="http://localhost:9021">http://localhost:9021</a></p>
+                <ul>
+                    <li>Topic management</li>
+                    <li>Consumer group monitoring</li>
+                    <li>Performance metrics</li>
+                    <li>Schema registry</li>
+                </ul>
+            </div>
+
+            <div class="feature">
+                <h3>Kafka UI</h3>
+                <p><strong>URL:</strong> <a href="http://localhost:8080">http://localhost:8080</a></p>
+                <ul>
+                    <li>Topic browsing</li>
+                    <li>Message inspection</li>
+                    <li>Cluster monitoring</li>
+                </ul>
+            </div>
+        </div>
+
+        <h2>Example Output</h2>
+
+        <h3>Product Event</h3>
+        <pre><code>{
+  "productId": "P123",
+  "userId": "U789",
+  "eventType": "VIEW",
+  "timestamp": 1648656000000,
+  "value": 199.99
+}</code></pre>
+
+        <h3>Analytics Result</h3>
+        <pre><code>{
+  "productId": "P123",
+  "name": "Premium Headphones",
+  "category": "Electronics",
+  "viewCount": 145,
+  "uniqueUsers": 89,
+  "totalValue": 1799.91,
+  "conversionRate": 0.12,
+  "windowStart": 1648656000000,
+  "windowEnd": 1648656300000
+}</code></pre>
 
         <h2>Features</h2>
         <div class="features">
@@ -49,24 +165,13 @@
             </div>
         </div>
 
-        <h2>Prerequisites</h2>
+        <h2>Next Steps</h2>
         <ul>
-            <li>Java 17+</li>
-            <li>Docker and Docker Compose</li>
-            <li>Gradle</li>
+            <li>Check out the <a href="examples/index.html">Pure Java Streams Examples</a></li>
+            <li>Review the <a href="architecture.html">Architecture Overview</a></li>
+            <li>Learn about <a href="monitoring.html">Monitoring</a></li>
+            <li>See the <a href="troubleshooting.html">Troubleshooting Guide</a></li>
         </ul>
-
-        <h2>Quick Start</h2>
-        <pre><code># Start Kafka environment
-docker-compose up -d
-
-# Load sample data
-./gradlew loadProductMetadata
-
-# Run the application
-./gradlew bootRun</code></pre>
-
-        <p>For detailed setup instructions, see our <a href="getting-started.html">Getting Started Guide</a>.</p>
     </div>
 </body>
 </html> 

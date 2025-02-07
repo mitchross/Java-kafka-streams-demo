@@ -1,26 +1,26 @@
 # Real-Time Product Analytics with Kafka Streams
 
-This project demonstrates how to build a real-time product analytics platform using Kafka Streams, solving common challenges in e-commerce analytics at scale..
+This project demonstrates how to build a real-time product analytics platform using Kafka Streams, solving common challenges in e-commerce analytics at scale.
 
-## Documentation
+📚 **[View Full Documentation](https://mitchross.github.io/Java-kafka-streams-demo/)**
 
-Comprehensive documentation is available in our [GitHub Pages](https://mitchross.github.io/kafka-streams-demo/):
+## Overview
 
-- [Business Problem & Solution](https://mitchross.github.io/kafka-streams-demo/business-case)
-- [Architecture Overview](https://mitchross.github.io/kafka-streams-demo/architecture)
-- [Getting Started Guide](https://mitchross.github.io/kafka-streams-demo/getting-started)
-- [Examples & Usage Patterns](https://mitchross.github.io/kafka-streams-demo/examples/)
-- [Monitoring & Management](https://mitchross.github.io/kafka-streams-demo/monitoring)
-- [Troubleshooting Guide](https://mitchross.github.io/kafka-streams-demo/troubleshooting)
+- Real-time product event processing
+- Time-windowed analytics
+- Unique user tracking
+- Aggregated product statistics
+- Fault-tolerant operations
+- Scalable stream processing
 
-## Quick Start
+## Prerequisites
 
-### Prerequisites
 - Java 17+
 - Docker and Docker Compose
 - Gradle
 
-### Setup
+## Quick Start
+
 ```bash
 # Start Kafka environment
 docker-compose up -d
@@ -30,23 +30,25 @@ docker-compose up -d
 
 # Run the application
 ./gradlew bootRun
+
+# Generate test events (in a new terminal)
+./gradlew generateTestData
 ```
 
-For detailed setup instructions and examples, please refer to our [Getting Started Guide](https://mitchross.github.io/kafka-streams-demo/getting-started).
+## Documentation
 
-## Features
-- Real-time product event processing
-- Time-windowed analytics
-- Unique user tracking
-- Aggregated product statistics
-- State store management
-- Scalable stream processing
-- Fault-tolerant operations
+Detailed documentation is available at our [documentation site](https://mitchross.github.io/Java-kafka-streams-demo/):
+
+- [Getting Started Guide](https://mitchross.github.io/Java-kafka-streams-demo/getting-started)
+- [Architecture Overview](https://mitchross.github.io/Java-kafka-streams-demo/architecture)
+- [Examples & Usage Patterns](https://mitchross.github.io/Java-kafka-streams-demo/examples/)
+- [Monitoring Guide](https://mitchross.github.io/Java-kafka-streams-demo/monitoring)
+- [Troubleshooting Guide](https://mitchross.github.io/Java-kafka-streams-demo/troubleshooting)
 
 ## Example Projects
 
 ### Java Streams Demo
-A companion project demonstrating similar analytics using pure Java Streams (without Kafka) is available in the `examples/java-streams` directory. See the [Java Streams Demo documentation](https://mitchross.github.io/kafka-streams-demo/examples/#java-streams-demo) for details.
+A companion project demonstrating similar analytics using pure Java Streams (without Kafka) is available in the `examples/java-streams` directory. See the [Java Streams Demo documentation](https://mitchross.github.io/Java-kafka-streams-demo/examples/#java-streams-demo) for details.
 
 ## Contributing
 
