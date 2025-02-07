@@ -2,181 +2,59 @@
 
 This project demonstrates how to build a real-time product analytics platform using Kafka Streams, solving common challenges in e-commerce analytics at scale.
 
-## Business Problem
+## Documentation
 
-Modern e-commerce platforms face several challenges when analyzing product performance:
+Comprehensive documentation is available in our [GitHub Pages](https://mitchross.github.io/kafka-streams-demo/):
 
-1. **High Volume Data Processing**: Millions of user interactions (views, clicks, purchases) per minute
-2. **Real-Time Insights**: Need immediate visibility into product performance
-3. **Complex Metrics**: Tracking unique users, conversion rates, and time-based trends
-4. **Data Consistency**: Maintaining accurate statistics across distributed systems
-5. **Resource Efficiency**: Processing analytics without impacting the main application
+- [Business Problem & Solution](https://mitchross.github.io/kafka-streams-demo/business-case)
+- [Architecture Overview](https://mitchross.github.io/kafka-streams-demo/architecture)
+- [Getting Started Guide](https://mitchross.github.io/kafka-streams-demo/getting-started)
+- [Examples & Usage Patterns](https://mitchross.github.io/kafka-streams-demo/examples/)
+- [Monitoring & Management](https://mitchross.github.io/kafka-streams-demo/monitoring)
+- [Troubleshooting Guide](https://mitchross.github.io/kafka-streams-demo/troubleshooting)
 
-## Solution Architecture
+## Quick Start
 
-We solve these challenges using Kafka Streams to process three key data streams:
+### Prerequisites
+- Java 17+
+- Docker and Docker Compose
+- Gradle
 
-1. **Product Events** (`product-events` topic)
-   - User interactions with products (views, clicks, purchases)
-   - High volume, real-time events
-   - Contains: productId, userId, eventType, timestamp, value
+### Setup
+```bash
+# Start Kafka environment
+docker-compose up -d
 
-2. **Product Metadata** (`product-metadata` topic)
-   - Product details (name, category, price)
-   - Lower volume, updated periodically
-   - Contains: productId, name, category, basePrice
+# Load sample data
+./gradlew loadProductMetadata
 
-3. **Analytics Output** (`product-analytics` topic)
-   - Aggregated statistics and insights
-   - Time-windowed analysis
-   - Contains: productId, viewCount, uniqueUsers, totalValue, conversionRate
-
-### Business Use Case Example
-
-Imagine an e-commerce platform like Amazon needs to:
-1. Track how many people view each product
-2. Calculate conversion rates in real-time
-3. Monitor product performance by category
-4. Alert when products show unusual activity
-
-For example, when a customer views the "Premium Headphones":
-- A view event is sent to `product-events` with their userId
-- The system combines this with existing product data from `product-metadata`
-- Every 5 minutes, it updates analytics showing:
-  - How many unique customers viewed the headphones
-  - Total potential revenue (price × views)
-  - Conversion rate compared to other electronics
-  - Trending products in the category
-
-This helps business teams:
-- Identify hot products needing inventory adjustment
-- Spot products with high views but low sales
-- Make real-time pricing and promotion decisions
-- Monitor customer engagement patterns
-
-### High-Level Architecture Overview
-
-From an architectural perspective, this system operates in several distinct layers:
-
-#### 1. Data Ingestion Layer
-- **User Interaction Events**
-  - Source: Web/Mobile Applications
-  - Capture Method: Real-time event streaming
-  - Volume: Millions of events per hour
-  - Data: Views, clicks, purchases
-
-- **Product Catalog Updates**
-  - Source: Product Management System
-  - Capture Method: Change Data Capture (CDC)
-  - Frequency: Multiple times per day
-  - Data: Product details, pricing, categories
-
-#### 2. Stream Processing Layer
-- **Event Enrichment**
-  - Join events with product metadata
-  - Validate and standardize data formats
-  - Filter invalid or duplicate events
-
-- **State Management**
-  - Maintain windowed aggregations
-  - Track unique user counts
-  - Handle out-of-order events
-  - Manage distributed state stores
-
-#### 3. Analytics Processing Layer
-- **Time-Window Processing**
-  - 5-minute tumbling windows
-  - 1-minute sliding windows for trends
-  - Parallel processing across partitions
-
-- **Aggregation Engine**
-  - Group by product and category
-  - Calculate running statistics
-  - Maintain materialized views
-
-#### 4. Output Layer
-- **Real-time Analytics**
-  - Push to analytics topic
-  - Update monitoring dashboards
-  - Trigger alerts on thresholds
-
-- **Data Persistence**
-  - Changelog topics for recovery
-  - Compacted topics for current state
-  - Backup state stores
-
-#### System Integration Points
-1. **Upstream Systems**
-   - E-commerce platform (events)
-   - Product catalog system (metadata)
-   - User management system (user data)
-
-2. **Downstream Consumers**
-   - Analytics dashboards
-   - Monitoring systems
-   - Recommendation engines
-   - Inventory management
-
-#### Scalability Considerations
-- Horizontal scaling through partitioning
-- Stateful processing with local storage
-- Exactly-once processing semantics
-- Fault-tolerant stream processing
-
-### Topic Schemas and Data Flow
-
-Here's how the data flows through the system, from input topics to output:
-
-#### 1. Product Events Topic (`product-events`)
-```json
-{
-    "productId": "P123",
-    "userId": "U789",
-    "eventType": "VIEW",
-    "timestamp": 1648656000000,
-    "value": 199.99
-}
+# Run the application
+./gradlew bootRun
 ```
 
-#### 2. Product Metadata Topic (`product-metadata`)
-```json
-{
-    "productId": "P123",
-    "name": "Premium Headphones",
-    "category": "Electronics",
-    "basePrice": 199.99
-}
-```
+For detailed setup instructions and examples, please refer to our [Getting Started Guide](https://mitchross.github.io/kafka-streams-demo/getting-started).
 
-#### 3. Analytics Output Topic (`product-analytics`)
-The output combines event aggregations with product metadata:
-```json
-{
-    // From product-metadata
-    "productId": "P123",
-    "name": "Premium Headphones",
-    "category": "Electronics",
-    "basePrice": 199.99,
-    
-    // Aggregated from product-events
-    "viewCount": 145,
-    "uniqueUsers": 89,
-    "totalValue": 1799.91,
-    "conversionRate": 0.12,
-    
-    // Time window information
-    "windowStart": 1648656000000,
-    "windowEnd": 1648656300000
-}
-```
+## Features
+- Real-time product event processing
+- Time-windowed analytics
+- Unique user tracking
+- Aggregated product statistics
+- State store management
+- Scalable stream processing
+- Fault-tolerant operations
 
-#### Data Transformation Process
-1. Events are grouped by `productId` and aggregated in 5-minute windows
-2. Unique users are counted using the `userId` field
-3. Total value is summed from the `value` field
-4. Conversion rate is calculated as `uniqueUsers / viewCount`
-5. Product metadata is joined using the `productId` as the key
-6. Results are continuously updated as new events arrive
+## Example Projects
+
+### Java Streams Demo
+A companion project demonstrating similar analytics using pure Java Streams (without Kafka) is available in the `examples/java-streams` directory. See the [Java Streams Demo documentation](https://mitchross.github.io/kafka-streams-demo/examples/#java-streams-demo) for details.
+
+## Contributing
+
+Please read our [Contributing Guide](CONTRIBUTING.md) for details on our code of conduct and the process for submitting pull requests.
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ```mermaid
 graph TD

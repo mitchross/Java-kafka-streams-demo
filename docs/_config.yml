@@ -1,0 +1,44 @@
+remote_theme: just-the-docs/just-the-docs
+# Site settings
+title: Real-Time Product Analytics
+description: Documentation for the Real-Time Product Analytics platform using Kafka Streams
+baseurl: "/kafka-streams-demo"
+url: ""
+# Theme settings
+search_enabled: true
+heading_anchors: true
+# Navigation
+nav_external_links:
+  - title: GitHub Repository
+    url: https://github.com/mitchross/kafka-streams-demo
+    hide_icon: false
+# Aux links for the upper right navigation
+aux_links:
+  "View on GitHub":
+    - "https://github.com/mitchross/kafka-streams-demo"
+# Makes Aux links open in a new tab
+aux_links_new_tab: true
+# Color scheme
+color_scheme: light
+# Footer content
+footer_content: "Copyright &copy; 2024. Distributed under the MIT license."
+# Back to top link
+back_to_top: true
+back_to_top_text: "Back to top"
+# Footer last edited timestamp
+last_edit_timestamp: true
+last_edit_time_format: "%b %e %Y at %I:%M %p"
+# Footer "Edit this page on GitHub" link text
+gh_edit_link: true
+gh_edit_link_text: "Edit this page on GitHub"
+gh_edit_repository: "https://github.com/mitchross/kafka-streams-demo"
+gh_edit_branch: "main"
+gh_edit_view_mode: "tree"
+# Exclude from processing
+exclude:
+  - Gemfile
+  - Gemfile.lock
+  - node_modules
+  - vendor
+  - .git
+  - .github
