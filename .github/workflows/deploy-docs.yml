@@ -33,6 +33,9 @@ jobs:
         uses: actions/configure-pages@v4
       - name: Build site
         run: mkdocs build
+      # Create .nojekyll file to disable GitHub Pages Jekyll processing
+      - name: Create .nojekyll file
+        run: touch site/.nojekyll
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
