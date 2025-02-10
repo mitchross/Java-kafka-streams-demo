@@ -15,6 +15,9 @@ java {
 
 repositories {
 	mavenCentral()
+	maven {
+		url = uri("https://packages.confluent.io/maven/")
+	}
 }
 
 dependencies {
@@ -27,6 +30,7 @@ dependencies {
 	implementation("org.apache.kafka:kafka-clients")
 	implementation("org.slf4j:slf4j-api")
 	implementation("ch.qos.logback:logback-classic")
+	implementation("io.confluent:kafka-json-serializer:7.5.1")
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
 	testImplementation("org.springframework.kafka:spring-kafka-test")
 	testRuntimeOnly("org.junit.platform:junit-platform-launcher")

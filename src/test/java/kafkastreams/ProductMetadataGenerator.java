@@ -2,10 +2,12 @@ package kafkastreams;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import kafkastreams.models.ProductMetadata;
+import kafkastreams.config.KafkaTopicConfig;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.serialization.StringSerializer;
+import io.confluent.kafka.serializers.KafkaJsonSerializer;
 
 import java.util.Properties;
 import java.util.Arrays;
@@ -26,18 +28,18 @@ public class ProductMetadataGenerator {
         Properties props = new Properties();
         props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
         props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
-        props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
+        props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, KafkaJsonSerializer.class);
+        props.put("schema.registry.url", "http://localhost:8081");
 
-        try (KafkaProducer<String, String> producer = new KafkaProducer<>(props)) {
+        try (KafkaProducer<String, ProductMetadata> producer = new KafkaProducer<>(props)) {
             for (ProductMetadata product : SAMPLE_PRODUCTS) {
-                String json = mapper.writeValueAsString(product);
-                ProducerRecord<String, String> record = new ProducerRecord<>(
-                    "product-metadata", 
+                ProducerRecord<String, ProductMetadata> record = new ProducerRecord<>(
+                    KafkaTopicConfig.PRODUCT_METADATA_TOPIC, 
                     product.getProductId(), 
-                    json
+                    product
                 );
                 producer.send(record);
-                System.out.println("Sent metadata: " + json);
+                System.out.println("Sent metadata: " + mapper.writeValueAsString(product));
             }
             producer.flush();
             System.out.println("Successfully loaded product metadata");

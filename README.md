@@ -25,6 +25,13 @@ This project demonstrates how to build a real-time product analytics platform us
 # Start Kafka environment
 docker-compose up -d
 
+# Wait for Kafka to be ready (about 30-45 seconds)
+# You can verify readiness by checking the Control Center:
+open http://localhost:9021
+
+# Verify Kafka is ready
+docker exec broker kafka-topics --list --bootstrap-server localhost:9092
+
 # Load sample data
 ./gradlew loadProductMetadata
 

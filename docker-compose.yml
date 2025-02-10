@@ -30,11 +30,7 @@ services:
       KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
       KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
       # Auto create our required topics
-      KAFKA_AUTO_CREATE_TOPICS_ENABLE: 'true'
-      KAFKA_CREATE_TOPICS: >
-        product-events:4:1,
-        product-metadata:4:1,
-        product-analytics:4:1
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: 'false'
 
   schema-registry:
     image: confluentinc/cp-schema-registry:7.5.1

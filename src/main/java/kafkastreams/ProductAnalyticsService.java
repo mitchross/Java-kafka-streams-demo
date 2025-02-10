@@ -7,6 +7,7 @@ import kafkastreams.models.ProductStats;
 import kafkastreams.serdes.ProductEventSerde;
 import kafkastreams.serdes.ProductMetadataSerde;
 import kafkastreams.serdes.ProductStatsSerde;
+import kafkastreams.config.KafkaTopicConfig;
 import org.springframework.stereotype.Service;
 import org.apache.kafka.streams.StreamsBuilder;
 import org.apache.kafka.streams.KafkaStreams;
@@ -46,10 +47,10 @@ public class ProductAnalyticsService {
                 .advanceBy(Duration.ofMinutes(1));
 
         // Create streams from input topics
-        KStream<String, String> inputStream = builder.stream("product-events", 
+        KStream<String, String> inputStream = builder.stream(KafkaTopicConfig.PRODUCT_EVENTS_TOPIC, 
             Consumed.with(Serdes.String(), Serdes.String()));
         
-        KTable<String, ProductMetadata> metadataTable = builder.table("product-metadata",
+        KTable<String, ProductMetadata> metadataTable = builder.table(KafkaTopicConfig.PRODUCT_METADATA_TOPIC,
             Consumed.with(Serdes.String(), new ProductMetadataSerde()));
 
         // Parse JSON and key by productId
